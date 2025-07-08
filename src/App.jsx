@@ -4,7 +4,10 @@ import Select from "react-select";
 const CLIENT_ID = "100877140149-62dkjnovin2gmlhppj5hqfupamu29r2a.apps.googleusercontent.com";
 const SHEET_ID = "1dJLyUn5ZhOCjCmxu8Ev0wocUaZaMcpKr4VMBlQlKQ8g";
 
+
+
 export default function AcreditacionApp() {
+  const [correoUsuario, setCorreoUsuario] = useState("");
   const [token, setToken] = useState("");
   const [nombres, setNombres] = useState([]);
   const [seleccionado, setSeleccionado] = useState("");
@@ -15,10 +18,19 @@ export default function AcreditacionApp() {
   useEffect(() => {
     const client = window.google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
-      scope: "https://www.googleapis.com/auth/spreadsheets",
+      scope: "https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.email",
       prompt: "",
       callback: (resp) => {
         if (resp.access_token) setToken(resp.access_token);
+        fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+  headers: {
+    Authorization: `Bearer ${resp.access_token}`
+  }
+})
+  .then(res => res.json())
+  .then(data => {
+    setCorreoUsuario(data.email); // ← guarda el correo en estado
+  });
       },
     });
 
@@ -65,29 +77,32 @@ export default function AcreditacionApp() {
   function guardarCambios() {
     if (!token || !seleccionado) return;
 
-    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!A2:A`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(res => res.json())
-      .then(data => {
-        const index = data.values?.findIndex(f => f[0] === seleccionado);
-        if (index >= 0) {
-          const fila = index + 2;
-          fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!N${fila}:Q${fila}?valueInputOption=RAW`, {
-            method: "PUT",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              values: [[campos.acreditado, campos.credencial, campos.llegada, campos.observaciones]]
-            }),
-          }).then(() => {
-            setMensajeExito(true);
-            setTimeout(() => setMensajeExito(false), 3000);
-          });
-        }
-      });
+  console.time("guardarCambios");
+
+  fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!A2:A`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(res => res.json())
+    .then(data => {
+      const index = data.values?.findIndex(f => f[0] === seleccionado);
+      if (index >= 0) {
+        const fila = index + 2;
+        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!N${fila}:R${fila}?valueInputOption=RAW`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            values: [[campos.acreditado, campos.credencial, campos.llegada, campos.observaciones, correoUsuario]]
+          }),
+        }).then(() => {
+          console.timeEnd("guardarCambios");
+          setMensajeExito(true);
+          setTimeout(() => setMensajeExito(false), 3000);
+        });
+      }
+    });
   }
 
   function handleAcreditadoChange(valor) {
@@ -106,7 +121,7 @@ export default function AcreditacionApp() {
         <button className="form-btn" id="loginBtn">Iniciar sesión con Google</button>
         <button className="form-btn" onClick={cargarNombres}>Cargar Nombres</button>
 
-        <label className="form-label">Seleccione un nombre</label>
+        <label className="form-label" style={{ fontSize: "1.1rem", marginTop: "1rem" }}>Seleccione un nombre</label>
         <Select
           options={nombres.map(n => ({ value: n, label: n }))}
           onChange={opt => cargarDatos(opt.value)}
@@ -167,8 +182,9 @@ export default function AcreditacionApp() {
                 <input className="form-input read-only" value={datos[10]} readOnly />
               </div>
 
-              <button className="form-btn" onClick={guardarCambios}>Guardar Cambios</button>
-            </div>
+<div className="form-group">
+  <button className="form-btn" onClick={guardarCambios}>Guardar Cambios</button>
+</div>            </div>
           </div>
         )}
       </div>
@@ -185,20 +201,24 @@ export default function AcreditacionApp() {
         .form-title { text-align: center; font-size: 1.875rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem; }
         .form-desc { text-align: center; color: #6b7280; margin-bottom: 2rem; font-size: 0.875rem; }
         .form-label { display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 600; color: #374151; }
-        .form-input, .form-select { width: 100%; padding: 0.875rem 1.25rem; border: 1px solid #d1d5db; border-radius: 8px; background: white; font-size: 1rem; margin-bottom: 1rem; }
+        .form-input, .form-select { width: 100%; padding: 0.875rem 1.25rem; border: 1px solid #d1d5db; border-radius: 8px; background: white; font-size: 1rem; margin-bottom: 1rem; box-sizing: border-box; }
         .form-input.read-only { background: #e5e7eb; color: #6b7280; }
-        .form-input:focus, .form-select:focus { border-color: #6a64f1; box-shadow: 0 0 0 3px rgba(106, 100, 241, 0.2); }
-        .form-btn { width: 100%; padding: 0.875rem 1.5rem; background: #6a64f1; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 1rem; }
+        .form-btn { width: 100%;  padding: 0.875rem 1.5rem;  background: #6a64f1;  color: white;  border: none;  border-radius: 8px;  font-weight: 600;  cursor: pointer;  margin-top: 1rem;  box-sizing: border-box; }
         .form-btn:hover { background: #5a54d1; }
-        .form-grid { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: space-between; }
-        .form-col { flex: 1; min-width: 250px; max-width: 400px; }
-        .form-group { margin-bottom: 1.25rem; }
+        .form-grid { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: space-between; padding: 0 1rem; box-sizing: border-box; }
+        .form-col {  flex: 1;
+  min-width: 250px;
+  max-width: 400px;
+  padding-inline: 0.75rem;
+  box-sizing: border-box; }
+        .form-group { width: 100%; box-sizing: border-box; }
         .mensaje-exito { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #4ade80; color: #065f46; padding: 12px 24px; border-radius: 8px; font-weight: 600; box-shadow: 0 0 10px rgba(0,0,0,0.15); z-index: 9999; animation: fadeInOut 3s forwards; }
         @keyframes fadeInOut { 0% { opacity: 0; transform: translateX(-50%) translateY(-10px); } 10% { opacity: 1; transform: translateX(-50%) translateY(0); } 90% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-10px); } }
-
         .react-select__control { width: 100%; padding: 0.25rem; border: 1px solid #d1d5db; border-radius: 8px; background: white; font-size: 1rem; margin-bottom: 1.25rem; box-shadow: none; }
         .react-select__control--is-focused { border-color: #6a64f1; box-shadow: 0 0 0 3px rgba(106, 100, 241, 0.2); }
         .react-select__menu { z-index: 10; }
+        .form-group > .form-btn { padding-inline: 0.75rem;}
+
       `}</style>
     </div>
   );
