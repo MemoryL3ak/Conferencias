@@ -134,7 +134,13 @@ function guardarCambios() {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              values: [[campos.acreditado, campos.credencial, campos.llegada, campos.observaciones, correoUsuario]],
+              values: [[
+  campos.acreditado,
+  campos.credencial,
+  campos.llegada,
+  campos.observaciones,
+  campos.acreditado === "Si" ? correoUsuario : ""
+]],
             }),
           }
         );
@@ -637,12 +643,14 @@ onChange={(opt) => {
    flex-direction: row;
   flex-wrap: nowrap;
 }
-  @media (max-width: 400px) {
+    @media (max-width: 400px) {
   .btn-google {
     font-size: 0.85rem;
     padding: 0.5rem 1rem;
   }
 }
+
+
 
 .btn-google:hover {
   background: #f2f2f2;
