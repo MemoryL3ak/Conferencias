@@ -20,26 +20,31 @@ export default function AcreditacionApp() {
 
 
 
-
- useEffect(() => {
-  // Paso 1: intenta recuperar el token del localStorage
+useEffect(() => {
+  // 1. Verifica si hay un token guardado en localStorage al cargar la app
   const savedToken = localStorage.getItem("accessToken");
   if (savedToken) {
     setToken(savedToken);
 
-    // Opcional: obtener correo si hay token guardado
+    // Intenta recuperar el correo asociado al token guardado
     fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
       headers: { Authorization: `Bearer ${savedToken}` }
     })
       .then(res => res.json())
-      .then(data => setCorreoUsuario(data.email));
+      .then(data => setCorreoUsuario(data.email))
+      .catch(() => {
+        // Si falla, puede que el token esté expirado o inválido
+        localStorage.removeItem("accessToken");
+        setToken("");
+        setCorreoUsuario("");
+      });
   }
 
-  // Paso 2: configura el cliente OAuth normalmente
+  // 2. Configura el cliente OAuth clásico
   tokenClientRef.current = window.google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
     scope: "https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.email",
-    prompt: "",
+    prompt: "", // puedes usar "consent" si quieres forzar el diálogo
     callback: (resp) => {
       if (resp.access_token) {
         setToken(resp.access_token);
@@ -50,10 +55,19 @@ export default function AcreditacionApp() {
         })
           .then(res => res.json())
           .then(data => setCorreoUsuario(data.email));
+      } else {
+        alert("No se pudo iniciar sesión correctamente.");
       }
-    },
+    }
   });
 }, []);
+
+
+
+
+
+
+
 
 useEffect(() => {
   if (token) {
@@ -120,7 +134,13 @@ function guardarCambios() {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              values: [[campos.acreditado, campos.credencial, campos.llegada, campos.observaciones, correoUsuario]],
+              values: [[
+  campos.acreditado,
+  campos.credencial,
+  campos.llegada,
+  campos.observaciones,
+  campos.acreditado === "Si" ? correoUsuario : ""
+]],
             }),
           }
         );
@@ -189,7 +209,10 @@ function fetchConAutenticacion(url, opciones = {}) {
 
 <div className="sesion-container">
   {!token ? (
-    <button className="form-btn" onClick={iniciarSesion}>Iniciar sesión con Google</button>
+    <button className="btn-google" onClick={iniciarSesion}>
+      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" />
+      Continuar con Google
+    </button>
   ) : (
     <>
       <p className="mensaje-sesion activa">Sesión iniciada como: {correoUsuario}</p>
@@ -197,6 +220,7 @@ function fetchConAutenticacion(url, opciones = {}) {
     </>
   )}
 </div>
+
 
 
 
@@ -599,6 +623,44 @@ onChange={(opt) => {
   z-index: 9999;
   animation: fadeInOut 3s ease forwards;
 }
+
+.btn-google {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: white;
+  color: #444;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 1rem;
+  transition: background 0.2s ease;
+   flex-direction: row;
+  flex-wrap: nowrap;
+}
+    @media (max-width: 400px) {
+  .btn-google {
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+
+
+.btn-google:hover {
+  background: #f2f2f2;
+}
+
+.btn-google img {
+  width: 20px;
+  height: 20px;
+}
+
 
 
 
