@@ -442,3 +442,78 @@ body {
   overflow-y: auto;
 }
 
+/*──────────────────────────────────────────────────────────────────────────────
+  Responsive para móviles (<=600px)
+──────────────────────────────────────────────────────────────────────────────*/
+@media (max-width: 600px) {
+  /* 1) Simplificamos el padding general */
+  .main-center {
+    padding: 1rem;
+  }
+  .form-container {
+    padding: 1.5rem;
+  }
+
+  /* 2) Pasamos las pestañas arriba en fila */
+  .form-layout {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  .tab-vertical {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .tab-vertical .tab-btn {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  /* 3) Quitamos el margen-left para el contenido */
+  .form-content {
+    margin-left: 0;
+  }
+
+  /* 4) Ajustes de imagen y títulos */
+  .form-img {
+    max-width: 120px;
+    margin-bottom: 1rem;
+  }
+  .form-title {
+    font-size: 1.5rem;
+  }
+  .form-desc {
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+  }
+
+  /* 5) Formularios y selects full-width */
+  .form-grid {
+    flex-direction: column;
+    padding: 0;
+  }
+  .form-col {
+    max-width: none;
+    padding-inline: 0;
+  }
+  .form-selectores {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  /* 6) Tabla más estrecha y menos filas visibles */
+  .tabla-scroll {
+    max-height: calc(2.5rem * 10 + 3rem);
+  }
+  .tabla-hospedadores th,
+  .tabla-hospedadores td {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+}
