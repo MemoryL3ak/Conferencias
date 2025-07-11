@@ -43,12 +43,12 @@ export default function App() {
         </div>
       </div>
 
-      {/* Logo inferior fuera del cuadro blanco */}
+      {/* Logo inferior fuera del cuadro 
       <img
         src="https://i.ibb.co/3yNB4h8K/logo-CEIP-2025-04.png"
         alt="Logo inferior"
         className="footer-logo"
-      />
+      />blanco */}
     </div>
   );
 }
