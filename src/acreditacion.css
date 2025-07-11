@@ -477,7 +477,7 @@ body {
 /* Logo inferior */
 .footer-logo {
   position: absolute;
-  bottom: -14rem;              /* más abajo dentro del cuadro */
+  bottom: -18rem;              /* más abajo dentro del cuadro */
   left: 50%;                 /* centrado horizontal */
   transform: translateX(-50%);
   max-width: 350px;          /* más grande */
