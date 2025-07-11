@@ -90,7 +90,7 @@ export default function HospedadoresForm() {
     <div className="hospedadores-section">
       {/* Cabecera */}
       <img
-        src="https://i.ibb.co/d4CJ7Y94/your-logo.png"
+        src="https://i.ibb.co/TqRmH5F8/logo-CEIP-2025-08.png"
         alt="Logo EBIP & IEP 2024 San Bernardo"
         className="form-img"
       />

@@ -144,9 +144,11 @@ export default function AcreditacionForm() {
   return (
     <div className="acreditacion-section">
       {/* Logo, título, descripción */}
-      <img src="https://i.ibb.co/d4CJ7Y94/...png" alt="Logo" className="form-img" />
+      <img src="https://i.ibb.co/TqRmH5F8/logo-CEIP-2025-08.png" alt="Logo" className="form-img" />
       <h2 className="form-title">Acreditación Pastoral</h2>
       <p className="form-desc">Complete o actualice la información...</p>
+
+
 
       {/* Sesión */}
       <div className="sesion-container">

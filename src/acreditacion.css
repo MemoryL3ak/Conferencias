@@ -27,12 +27,100 @@ body {
   box-sizing: border-box;
 }
 
+/*──────────────────────────────────────────────────────────────────────────────
+  Layout principal y pestañas verticales
+──────────────────────────────────────────────────────────────────────────────*/
+.form-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  background: white;
+  /* mayor espacio interno a izquierda y derecha */
+  padding: 1rem 1rem; 
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  gap: 1rem;
+  width: 100%;
+  /* ampliar el ancho máximo para más espacio horizontal */
+  max-width: 1200px;
+  margin: auto;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.tab-vertical {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.tab-vertical .tab-btn {
+  font-family: 'DM Sans', sans-serif;
+  background-color: #f5f0ec;
+  color: #511C24;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.tab-vertical .tab-btn:hover {
+  background-color: rgba(81, 28, 36, 0.1);
+  border-color: #511C24;
+  color: #511C24;
+}
+
+.tab-vertical .tab-btn.activo {
+  background-color: #0f766e;
+  color: white;
+  border-color: #0f766e;
+}
+
+/*──────────────────────────────────────────────────────────────────────────────
+  Contenedor de la sección activa: padding simétrico
+──────────────────────────────────────────────────────────────────────────────*/
+.form-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-sizing: border-box;
+   padding-left: 150px;  /* solo el ancho de la sidebar */
+  padding-right: 1rem;  /* un poquito de margen derecho */
+  position: relative;
+  z-index: 1;
+  overflow-x: hidden; /* evita que nada sobresalga */
+}
+/*──────────────────────────────────────────────────────────────────────────────
+  Sólo en Servidumbre: scroll horizontal interno
+──────────────────────────────────────────────────────────────────────────────*/
+.acreditacion-servidumbre-section .tabla-scroll {
+  overflow-x: auto;
+}
+.acreditacion-servidumbre-section .tabla-scroll table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+/*──────────────────────────────────────────────────────────────────────────────
+  Componentes generales
+──────────────────────────────────────────────────────────────────────────────*/
 .form-img {
   display: block;
   margin: 0 auto 2rem;
-  max-width: 200px;
+  max-width: 400px;
+  
 }
-
 .form-title {
   text-align: center;
   font-size: 1.875rem;
@@ -40,14 +128,12 @@ body {
   color: #511C24;
   margin-bottom: 0.5rem;
 }
-
 .form-desc {
   text-align: center;
   color: #6b7280;
   margin-bottom: 2rem;
   font-size: 0.875rem;
 }
-
 .form-label {
   display: block;
   margin-bottom: 0.5rem;
@@ -55,7 +141,6 @@ body {
   font-weight: 500;
   color: #511C24;
 }
-
 .form-input,
 .form-select {
   width: 100%;
@@ -67,12 +152,14 @@ body {
   margin-bottom: 1rem;
   box-sizing: border-box;
 }
-
 .form-input.read-only {
   background: #eee;
   color: #333;
 }
 
+/*──────────────────────────────────────────────────────────────────────────────
+  Botones
+──────────────────────────────────────────────────────────────────────────────*/
 .form-btn {
   width: 100%;
   padding: 0.875rem 1.5rem;
@@ -87,11 +174,19 @@ body {
   box-sizing: border-box;
   transition: background 0.2s ease;
 }
-
 .form-btn:hover {
   background: #3e151c;
 }
+.guardar-btn {
+  background-color: #0f766e;
+}
+.guardar-btn:hover {
+  background-color: #0d5e58;
+}
 
+/*──────────────────────────────────────────────────────────────────────────────
+  Grid interno
+──────────────────────────────────────────────────────────────────────────────*/
 .form-grid {
   display: flex;
   gap: 2rem;
@@ -100,7 +195,6 @@ body {
   padding: 0 1rem;
   box-sizing: border-box;
 }
-
 .form-col {
   flex: 1;
   min-width: 250px;
@@ -108,12 +202,14 @@ body {
   padding-inline: 0.75rem;
   box-sizing: border-box;
 }
-
 .form-group {
   width: 100%;
   box-sizing: border-box;
 }
 
+/*──────────────────────────────────────────────────────────────────────────────
+  Mensaje de éxito
+──────────────────────────────────────────────────────────────────────────────*/
 .mensaje-exito {
   position: fixed;
   top: 20px;
@@ -121,7 +217,6 @@ body {
   transform: translateX(-50%);
   background: #d1fae5;
   color: #065f46;
-  font-family: 'DM Sans', sans-serif;
   padding: 12px 24px;
   font-size: 0.95rem;
   font-weight: 500;
@@ -129,38 +224,39 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   z-index: 9999;
   animation: fadeInOut 3s ease forwards;
 }
-
 @keyframes fadeInOut {
   0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
-  10% { opacity: 1; transform: translateX(-50%) translateY(0); }
-  90% { opacity: 1; transform: translateX(-50%) translateY(0); }
-  100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+ 10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+ 90% { opacity: 1; }
+100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
 }
 
+/*──────────────────────────────────────────────────────────────────────────────
+  React Select
+──────────────────────────────────────────────────────────────────────────────*/
 .react-select__control {
   width: 100%;
   padding: 0.25rem;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  background: white;
-  font-size: 1rem;
   margin-bottom: 1.25rem;
   box-shadow: none;
 }
-
 .react-select__control--is-focused {
   border-color: #511C24;
-  box-shadow: 0 0 0 3px rgba(81, 28, 36, 0.2);
+  box-shadow: 0 0 0 3px rgba(81,28,36,0.2);
 }
-
 .react-select__menu {
   z-index: 10;
 }
 
+/*──────────────────────────────────────────────────────────────────────────────
+  Filtros
+──────────────────────────────────────────────────────────────────────────────*/
 .form-selectores {
   display: flex;
   gap: 1rem;
@@ -169,40 +265,43 @@ body {
   margin-top: 1rem;
 }
 
-@media (max-width: 600px) {
-  .form-selectores {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .form-selectores .react-select__control {
-    margin-bottom: 0.5rem;
-  }
+/*──────────────────────────────────────────────────────────────────────────────
+  Scroll vertical (20 filas)
+──────────────────────────────────────────────────────────────────────────────*/
+.tabla-scroll {
+  max-height: calc(2.5rem * 20 + 3rem);
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.guardar-btn {
-  background-color: #0f766e;
+/*──────────────────────────────────────────────────────────────────────────────
+  Estilos de tabla
+──────────────────────────────────────────────────────────────────────────────*/
+.tabla-hospedadores {
+  width: 100%;
+  border-collapse: collapse;
+}
+.tabla-hospedadores th,
+.tabla-hospedadores td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+  font-size: 0.95rem;
+}
+.tabla-hospedadores tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+.tabla-hospedadores thead {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 1;
 }
 
-.guardar-btn:hover {
-  background-color: #0d5e58;
-}
-
-.spinner {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 3px solid rgba(0, 0, 0, 0.2);
-  border-top: 3px solid white;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  margin-right: 8px;
-  vertical-align: middle;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
+/*──────────────────────────────────────────────────────────────────────────────
+  Mensaje de sesión, Google, spinner, responsive…
+──────────────────────────────────────────────────────────────────────────────*/
 .mensaje-sesion {
   padding: 0.5rem 1rem;
   border-radius: 8px;
@@ -212,25 +311,17 @@ body {
   margin-top: 0.75rem;
   animation: fadeIn 0.4s ease-in;
 }
-
 .mensaje-sesion.activa {
   background-color: #d1fae5;
   color: #065f46;
 }
-
 .mensaje-sesion.inactiva {
   background-color: #fee2e2;
   color: #991b1b;
 }
-
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-
-.sesion-container {
-  text-align: center;
-  margin-bottom: 1rem;
 }
 
 .cerrar-sesion-btn {
@@ -241,29 +332,8 @@ body {
   border-radius: 8px;
   cursor: pointer;
 }
-
 .cerrar-sesion-btn:hover {
   background-color: #7f1d1d;
-}
-
-.mensaje-cargando {
-  position: fixed;
-  top: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #e0f2fe;
-  color: #0369a1;
-  font-family: 'DM Sans', sans-serif;
-  padding: 12px 24px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 9999;
-  animation: fadeInOut 3s ease forwards;
 }
 
 .btn-google {
@@ -283,30 +353,53 @@ body {
   margin-top: 1rem;
   transition: background 0.2s ease;
 }
-
-@media (max-width: 400px) {
-  .btn-google {
-    font-size: 0.85rem;
-    padding: 0.5rem 1rem;
-  }
-}
-
 .btn-google:hover {
   background: #f2f2f2;
 }
-
 .btn-google img {
   width: 20px;
   height: 20px;
+}
+
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(0,0,0,0.2);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.mensaje-cargando {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 9999;
+  animation: fadeInOut 3s ease forwards;
 }
 
 .form-tabs {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin: 0;
+  padding: 0 1rem;
 }
-
 .form-tabs button {
   padding: 0.5rem 1rem;
   border: none;
@@ -316,153 +409,22 @@ body {
   cursor: pointer;
   font-weight: 500;
 }
-
 .form-tabs .tab-activa {
   background: #511C24;
   color: white;
 }
 
-.tabla-hospedadores {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.tabla-hospedadores th,
-.tabla-hospedadores td {
-  padding: 0.75rem;
-  border-bottom: 1px solid #eee;
-  font-size: 0.95rem;
-}
-
-.tabla-hospedadores tbody tr:nth-child(odd) {
-  background-color: #f9f9f9;
-}
-
-.tabla-hospedadores thead {
-  position: sticky;
-  top: 0;
-  background: white;
-  z-index: 1;
-}
-
-/*──────────────────────────────────────────────────────────────────────────────
-  Layout: posicionamiento de pestañas y contenido
-──────────────────────────────────────────────────────────────────────────────*/
-.form-layout {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  background-color: white;
-  padding: 2rem 2rem 2rem 1rem; /* top | right | bottom | left */
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-  gap: 1rem;
-  width: 100%;
-  max-width: 1000px;
-  margin: auto;
-  box-sizing: border-box;
-  position: relative;  /* para contexto de posicionamiento absoluto */
-}
-
-/*──────────────────────────────────────────────────────────────────────────────
-  Sidebar de pestañas
-──────────────────────────────────────────────────────────────────────────────*/
-.tab-vertical {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  width: 150px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  z-index: 10;
-}
-
-/*──────────────────────────────────────────────────────────────────────────────
-  Contenido desplazado para dejar hueco a la sidebar
-──────────────────────────────────────────────────────────────────────────────*/
-.form-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  box-sizing: border-box;
-  margin-left: calc(150px + 1rem);
-  position: relative;
-  z-index: 1;
-}
-
-/*──────────────────────────────────────────────────────────────────────────────
-  Estilos profesionales para botones de pestaña
-──────────────────────────────────────────────────────────────────────────────*/
-.tab-vertical .tab-btn {
-  font-family: 'DM Sans', sans-serif;
-  background-color: #f5f0ec;        /* Beige del fondo principal */
-  color: #511C24;                   /* Burdeos principal */
-  border: 2px solid transparent;
-  border-radius: 8px;
-  padding: 0.75rem 1.25rem;
-  font-size: 1rem;
-  font-weight: 600;
-  text-align: left;
-  cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-.tab-vertical .tab-btn:hover {
-  background-color: rgba(81, 28, 36, 0.1); /* Burdeos suave en hover */
-  border-color: #511C24;
-  color: #511C24;
-}
-
-.tab-vertical .tab-btn.activo {
-  background-color: #0f766e;       /* Teal secundario */
-  color: #ffffff;
-  border-color: #0f766e;
-}
-
-/* ────────────────────────────────────────────────────────────────────────────
-   Mover las secciones hacia la derecha ajustando el margen izquierdo
-──────────────────────────────────────────────────────────────────────────────*/
-.form-content > .acreditacion-section,
-.form-content > .hospedadores-section {
-  margin-left: -7rem;   /* prueba con 1rem, 2rem, 3rem, etc. hasta encontrar tu valor */
-  padding-left: 1;     /* deja a 0 si no necesitas padding interno extra */
-
-   margin-right: 1,5rem;   /* prueba con 1rem, 2rem, 3rem, etc. hasta encontrar tu valor */
-  padding-right: 1rem;
-}
-
-/*──────────────────────────────────────────────────────────────────────────────
-  Scroll solo después de 20 filas en el listado de hospedadores
-──────────────────────────────────────────────────────────────────────────────*/
-.tabla-scroll {
-  /* altura de 20 filas (2.5rem cada una) + altura del encabezado (~3rem) */
-  max-height: calc(2.5rem * 20 + 3rem);
-  overflow-y: auto;
-}
-
-/*──────────────────────────────────────────────────────────────────────────────
-  Responsive para móviles (<=600px)*/
- @media (max-width: 600px) {
-  /* 1) Stacking vertical general */
+@media (max-width: 600px) {
   .form-layout {
     flex-direction: column;
     padding: 1rem;
   }
-  .form-container {
-    padding: 1rem;
-  }
-
-  /* 2) Tabs arriba en fila, full-width */
   .tab-vertical {
     position: static;
-    display: flex;
     flex-direction: row;
     justify-content: space-between;
     width: 100%;
     margin-bottom: 1rem;
-    gap: 0.25rem;
   }
   .tab-vertical .tab-btn {
     flex: 1;
@@ -471,36 +433,16 @@ body {
     text-align: center;
     margin: 0;
   }
-
-  /* 3) Quitar offset, formulario full-width */
   .form-content {
-    margin-left: 0;
+    padding-left: 0;
+    padding-right: 0;
     gap: 1rem;
-  }
-
-  /* 4) Formularios y filtros apilados */
-  .form-grid {
-    flex-direction: column;
-    padding: 0;
-  }
-  .form-col {
-    max-width: none;
-    padding-inline: 0;
   }
   .form-selectores {
     flex-direction: column;
     padding: 0 0.5rem;
     gap: 0.5rem;
   }
-
-  /* 5) Inputs/select full-width sin overflow */
-  .react-select__control,
-  .form-input,
-  .form-select {
-    width: 100%;
-  }
-
-  /* 6) Tabla scroll en ambos ejes */
   .tabla-scroll {
     max-height: calc(2.5rem * 10 + 3rem);
     overflow-y: auto;
@@ -509,16 +451,13 @@ body {
   }
   .tabla-hospedadores {
     width: 100%;
-    min-width: 500px; /* si necesitas un ancho mínimo */
-    border-collapse: collapse;
+    min-width: 500px;
   }
   .tabla-hospedadores th,
   .tabla-hospedadores td {
     padding: 0.5rem;
     font-size: 0.85rem;
   }
-
-  /* 7) Reducir imagen y texto */
   .form-img {
     max-width: 120px;
     margin-bottom: 1rem;
@@ -530,4 +469,19 @@ body {
     font-size: 0.8rem;
     margin-bottom: 1rem;
   }
+}
+
+/*──────────────────────────────────────────────────────────────────────────────
+  Logo inferior
+──────────────────────────────────────────────────────────────────────────────*/
+/* Logo inferior */
+.footer-logo {
+  position: absolute;
+  bottom: -14rem;              /* más abajo dentro del cuadro */
+  left: 50%;                 /* centrado horizontal */
+  transform: translateX(-50%);
+  max-width: 350px;          /* más grande */
+  width: auto;
+  height: auto;
+  z-index: 2;
 }
