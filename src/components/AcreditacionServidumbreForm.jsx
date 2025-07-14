@@ -6,13 +6,15 @@ const CLIENT_ID = "100877140149-62dkjnovin2gmlhppj5hqfupamu29r2a.apps.googleuser
 const SHEET_ID  = "1dJLyUn5ZhOCjCmxu8Ev0wocUaZaMcpKr4VMBlQlKQ8g";
 
 export default function AcreditacionServidumbreForm() {
-  const [token, setToken] = useState("");
+  const [token, setToken]               = useState("");
   const [correoUsuario, setCorreoUsuario] = useState("");
-  const [filas, setFilas] = useState([]);
-  const [editedRows, setEditedRows] = useState({});
+  const [filas, setFilas]               = useState([]);
+  const [editedRows, setEditedRows]     = useState({});
   const [filtroNombre, setFiltroNombre] = useState(null);
   const [filtroSeccion, setFiltroSeccion] = useState(null);
   const [filtroIglesia, setFiltroIglesia] = useState(null);
+  // ── NUEVO: estado para mostrar aviso de inicio de sesión
+  const [mostrarAvisoLogin, setMostrarAvisoLogin] = useState(false);
 
   const tokenClientRef = useRef(null);
   const scrollRef = useRef(null);
@@ -109,7 +111,11 @@ export default function AcreditacionServidumbreForm() {
   return (
     <div className="acreditacion-servidumbre-section">
       {/* Logo, título, descripción */}
-      <img src="https://i.ibb.co/TqRmH5F8/logo-CEIP-2025-08.png" alt="Logo Servidumbre" className="form-img" />
+      <img
+        src="https://i.ibb.co/TqRmH5F8/logo-CEIP-2025-08.png"
+        alt="Logo Servidumbre"
+        className="form-img"
+      />
       <h2 className="form-title">Acreditación Servidumbre</h2>
       <p className="form-desc">Complete o actualice la información de servidumbre.</p>
 
@@ -133,6 +139,13 @@ export default function AcreditacionServidumbreForm() {
         )}
       </div>
 
+      {/* Mensaje de aviso si intenta editar sin sesión */}
+      {mostrarAvisoLogin && !token && (
+        <p className="mensaje-sesion inactiva">
+          ⚠️ Debe iniciar sesión para realizar esta acción.
+        </p>
+      )}
+
       {/* Filtros con portal para evitar solapamiento */}
       <div className="form-selectores">
         {[
@@ -145,10 +158,11 @@ export default function AcreditacionServidumbreForm() {
             <Select
               options={f.opts.map(v => ({ value: v, label: v }))}
               value={f.state}
-              onChange={opt => { f.setState(opt); /* limpia los otros */ 
-                if (f.label==="Nombre") { setFiltroSeccion(null); setFiltroIglesia(null); }
-                if (f.label==="Sección") { setFiltroNombre(null); setFiltroIglesia(null); }
-                if (f.label==="Iglesia") { setFiltroNombre(null); setFiltroSeccion(null); }
+              onChange={opt => {
+                f.setState(opt);
+                if (f.label === "Nombre")  setFiltroSeccion(null), setFiltroIglesia(null);
+                if (f.label === "Sección") setFiltroNombre(null), setFiltroIglesia(null);
+                if (f.label === "Iglesia") setFiltroNombre(null), setFiltroSeccion(null);
               }}
               placeholder={`Filtrar por ${f.label.toLowerCase()}`}
               isClearable
@@ -179,24 +193,23 @@ export default function AcreditacionServidumbreForm() {
                   <td>{row[2]||""}</td>
                   <td>{row[3]||""}</td>
                   <td>{row[4]||""}</td>
-                  {/* Selección inmediata y envío de hoja */}
                   <td>
                     <select
                       className="form-select"
                       value={acredita}
                       onChange={e => {
+                        // ── NUEVO: bloqueo y aviso si no hay sesión
+                        if (!token) {
+                          setMostrarAvisoLogin(true);
+                          setTimeout(() => setMostrarAvisoLogin(false), 3000);
+                          return;
+                        }
                         const val = e.target.value;
                         const newFecha = val === "Si" ? new Date().toLocaleString() : "";
-                        // Actualizo local state
                         setEditedRows(prev => ({
                           ...prev,
-                          [idx]: {
-                            acredita: val,
-                            fecha: newFecha,
-                            observaciones: prev[idx].observaciones
-                          }
+                          [idx]: { acredita: val, fecha: newFecha, observaciones }
                         }));
-                        // Envío a la hoja
                         updateSheet(`F${filaNum}:F${filaNum}`, val);
                         updateSheet(`H${filaNum}:H${filaNum}`, newFecha);
                       }}
@@ -205,20 +218,20 @@ export default function AcreditacionServidumbreForm() {
                       <option value="No">No</option>
                     </select>
                   </td>
-                  {/* Fecha (read-only) */}
                   <td>
-                    <input
-                      className="form-input read-only"
-                      value={fecha}
-                      readOnly
-                    />
+                    <input className="form-input read-only" value={fecha} readOnly />
                   </td>
-                  {/* Observaciones (editable) */}
                   <td>
                     <input
                       className="form-input"
                       value={observaciones}
                       onChange={e => {
+                        // ── NUEVO: bloqueo y aviso si no hay sesión
+                        if (!token) {
+                          setMostrarAvisoLogin(true);
+                          setTimeout(() => setMostrarAvisoLogin(false), 3000);
+                          return;
+                        }
                         const val = e.target.value;
                         setEditedRows(prev => ({
                           ...prev,

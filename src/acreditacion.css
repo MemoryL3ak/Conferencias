@@ -62,7 +62,7 @@ body {
 .tab-vertical .tab-btn {
   font-family: 'DM Sans', sans-serif;
   background-color: #f5f0ec;
-  color: #511C24;
+  color: #03304b;
   border: 2px solid transparent;
   border-radius: 8px;
   padding: 0.75rem 1.25rem;
@@ -75,8 +75,8 @@ body {
 
 .tab-vertical .tab-btn:hover {
   background-color: rgba(81, 28, 36, 0.1);
-  border-color: #511C24;
-  color: #511C24;
+  border-color: #03304b;
+  color: #03304b;
 }
 
 .tab-vertical .tab-btn.activo {
@@ -125,7 +125,7 @@ body {
   text-align: center;
   font-size: 1.875rem;
   font-weight: 700;
-  color: #511C24;
+  color: #03304b;
   margin-bottom: 0.5rem;
 }
 .form-desc {
@@ -139,7 +139,7 @@ body {
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #511C24;
+  color: #03304b;
 }
 .form-input,
 .form-select {

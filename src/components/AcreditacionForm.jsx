@@ -1,3 +1,5 @@
+
+// src/components/AcreditacionForm.jsx
 import { useEffect, useState, useRef } from "react";
 import Select from "react-select";
 
@@ -5,26 +7,28 @@ const CLIENT_ID = "100877140149-62dkjnovin2gmlhppj5hqfupamu29r2a.apps.googleuser
 const SHEET_ID  = "1dJLyUn5ZhOCjCmxu8Ev0wocUaZaMcpKr4VMBlQlKQ8g";
 
 export default function AcreditacionForm() {
-  // **Estados y refs** (idénticos a App.jsx original)
+  // **Estados y refs** (idénticos a tu original)
   const [correoUsuario, setCorreoUsuario] = useState("");
-  const [token, setToken]           = useState("");
-  const [nombres, setNombres]       = useState([]);
-  const [seleccionado, setSeleccionado] = useState(null);
-  const [datos, setDatos]           = useState({});
-  const [campos, setCampos]         = useState({
+  const [token, setToken]                 = useState("");
+  const [nombres, setNombres]             = useState([]);
+  const [seleccionado, setSeleccionado]   = useState(null);
+  const [datos, setDatos]                 = useState({});
+  const [campos, setCampos]               = useState({
     acreditado: "No",
     credencial: "No",
     llegada: "",
     observaciones: ""
   });
-  const [mensajeExito, setMensajeExito] = useState(false);
-  const [iglesias, setIglesias]         = useState([]);
+  const [mensajeExito, setMensajeExito]   = useState(false);
+  const [iglesias, setIglesias]           = useState([]);
   const [iglesiaSeleccionada, setIglesiaSeleccionada] = useState(null);
-  const [cargando, setCargando]         = useState(false);
-  const [guardando, setGuardando]       = useState(false);
+  const [cargando, setCargando]           = useState(false);
+  const [guardando, setGuardando]         = useState(false);
+  // ── NUEVO: estado para mostrar aviso de inicio de sesión
+  const [mostrarAvisoLogin, setMostrarAvisoLogin] = useState(false);
   const tokenClientRef = useRef(null);
 
-  // **useEffect** de inicialización de Google OAuth y carga de datos :contentReference[oaicite:0]{index=0}
+  // **useEffect** de inicialización de Google OAuth y carga de datos
   useEffect(() => {
     const saved = localStorage.getItem("accessToken");
     if (saved) initFromToken(saved);
@@ -48,7 +52,7 @@ export default function AcreditacionForm() {
       .then(d => setCorreoUsuario(d.email));
   }
 
-  // **Carga de nombres e iglesias** cuando cambia el token :contentReference[oaicite:1]{index=1}
+  // **Carga de nombres e iglesias** cuando cambia el token
   useEffect(() => { if (token) cargarNombres(); }, [token]);
 
   function cargarNombres() {
@@ -81,7 +85,14 @@ export default function AcreditacionForm() {
   }
 
   function guardarCambios() {
-    if (!token || !seleccionado?.value) return;
+    // ── bloqueo de guardar si no hay sesión
+    if (!token) {
+      setMostrarAvisoLogin(true);
+      setTimeout(() => setMostrarAvisoLogin(false), 3000);
+      return;
+    }
+    if (!seleccionado?.value) return;
+
     setGuardando(true);
     fetchConAuth(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!A2:A`)
       .then(r => r.json())
@@ -124,7 +135,8 @@ export default function AcreditacionForm() {
 
   function cerrarSesion() {
     localStorage.removeItem("accessToken");
-    setToken(""); setCorreoUsuario("");
+    setToken("");
+    setCorreoUsuario("");
   }
   function iniciarSesion() {
     tokenClientRef.current.requestAccessToken();
@@ -148,8 +160,6 @@ export default function AcreditacionForm() {
       <h2 className="form-title">Acreditación Pastoral</h2>
       <p className="form-desc">Complete o actualice la información...</p>
 
-
-
       {/* Sesión */}
       <div className="sesion-container">
         {!token
@@ -165,6 +175,13 @@ export default function AcreditacionForm() {
             </>
         }
       </div>
+
+      {/* Mensaje de aviso si intenta guardar sin sesión */}
+      {mostrarAvisoLogin && !token && (
+        <p className="mensaje-sesion inactiva">
+          ⚠️ Debe iniciar sesión para realizar esta acción.
+        </p>
+      )}
 
       {/* Filtros */}
       <div className="form-selectores">
@@ -191,7 +208,9 @@ export default function AcreditacionForm() {
             onChange={opt => {
               setIglesiaSeleccionada(opt);
               if (opt?.value) {
-                fetchConAuth(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!A2:Q`)
+                fetchConAuth(
+                  `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!A2:Q`
+                )
                   .then(r => r.json())
                   .then(d => {
                     const fila = d.values?.find(f => f[2] === opt.value);
@@ -234,8 +253,7 @@ export default function AcreditacionForm() {
 
           {/* Columna derecha */}
           <div className="form-col">
-            {/* Campos dinámicos de hospedador y acreditación */}
-            {["Nombre Hospedador","Dirección Hospedador","Iglesia Hospedador","Teléfono Hospedador"]
+            { ["Nombre Hospedador","Dirección Hospedador","Iglesia Hospedador","Teléfono Hospedador"]
               .map((lbl, idx) => (
                 <div className="form-group" key={idx}>
                   <label className="form-label">{lbl}</label>
@@ -247,13 +265,19 @@ export default function AcreditacionForm() {
                 </div>
               ))
             }
-            {/* Select acreditación y credencial */}
             <div className="form-group">
               <label className="form-label">¿Se acredita Pastor?</label>
               <select
                 className="form-select"
                 value={campos.acreditado}
-                onChange={e => handleAcreditadoChange(e.target.value)}
+                onChange={e => {
+                  if (!token) {
+                    setMostrarAvisoLogin(true);
+                    setTimeout(() => setMostrarAvisoLogin(false), 3000);
+                    return;
+                  }
+                  handleAcreditadoChange(e.target.value);
+                }}
               >
                 <option value="Si">Si</option>
                 <option value="No">No</option>
@@ -264,13 +288,19 @@ export default function AcreditacionForm() {
               <select
                 className="form-select"
                 value={campos.credencial}
-                onChange={e => setCampos({ ...campos, credencial: e.target.value })}
+                onChange={e => {
+                  if (!token) {
+                    setMostrarAvisoLogin(true);
+                    setTimeout(() => setMostrarAvisoLogin(false), 3000);
+                    return;
+                  }
+                  setCampos({ ...campos, credencial: e.target.value })
+                }}
               >
                 <option value="Si">Si</option>
                 <option value="No">No</option>
               </select>
             </div>
-            {/* Fecha/Hora y observaciones */}
             <div className="form-group">
               <label className="form-label">Fecha y Hora de Llegada</label>
               <input className="form-input read-only" value={campos.llegada} readOnly />
@@ -280,10 +310,16 @@ export default function AcreditacionForm() {
               <input
                 className="form-input"
                 value={campos.observaciones}
-                onChange={e => setCampos({ ...campos, observaciones: e.target.value })}
+                onChange={e => {
+                  if (!token) {
+                    setMostrarAvisoLogin(true);
+                    setTimeout(() => setMostrarAvisoLogin(false), 3000);
+                    return;
+                  }
+                  setCampos({ ...campos, observaciones: e.target.value })
+                }}
               />
             </div>
-            {/* Botón Guardar */}
             <div className="form-group">
               <button
                 className="form-btn guardar-btn"
@@ -315,3 +351,4 @@ export default function AcreditacionForm() {
     </div>
   );
 }
+
