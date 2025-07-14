@@ -485,3 +485,34 @@ body {
   height: auto;
   z-index: 2;
 }
+
+.acreditacion-servidumbre-section .form-select,
+.acreditacion-servidumbre-section .form-input.read-only {
+  font-size: 0.75rem;       /* reduce el tamaño de letra */
+  line-height: 1.2;         /* opcional, para compactar un poco más */
+  padding: 0.4rem 0.8rem;   /* ajusta el padding si hace falta */
+}
+
+.acreditacion-servidumbre-section .form-input {
+  font-size: 0.75rem;       /* igual tamaño que los otros campos */
+  line-height: 1.2;
+  padding: 0.4rem 0.8rem;   /* compacta el interior para que encaje mejor */
+}
+
+.chat-widget-container {
+  position: fixed;
+  bottom: 20px;     /* separación desde abajo */
+  right: 20px;      /* separación desde la derecha */
+  width: 300px;     /* ancho del widget */
+  height: 400px;    /* alto máximo del widget */
+  z-index: 1000;    /* por encima de otros elementos */
+}
+
+.chat-widget {
+  display: flex;
+  flex-direction: column;
+  height: 100%;     /* que llene todo el contenedor */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  overflow: hidden;
+}
