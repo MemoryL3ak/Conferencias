@@ -1,15 +1,19 @@
 {
-  "rewrites": [
-    {
-      "source": "/acreditacion/:path*",
-      "destination": "/:path*"
-    }
-  ],
   "redirects": [
     {
       "source": "/acreditacion",
       "destination": "/acreditacion/",
       "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/acreditacion/assets/:path*",
+      "destination": "/assets/:path*"
+    },
+    {
+      "source": "/acreditacion/:path*",
+      "destination": "/index.html"
     }
   ]
 }
