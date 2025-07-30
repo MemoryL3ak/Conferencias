@@ -298,7 +298,8 @@ export default function AcreditacionForm() {
             ].map((c, i) => (
               <div className="form-group" key={i}>
                 <label className="form-label">{c.label}</label>
-                <input
+                <input.gitignore
+
                   className="form-input read-only"
                   value={c.value || ''}
                   readOnly

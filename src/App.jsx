@@ -17,27 +17,27 @@ export default function App() {
       <div className="main-center">
         <div className={`form-layout ${vistaActual === "servidumbre" ? "servidumbre-mode" : ""}`}>
           
-          {/* Pestañas verticales */}
+ {/* Pestañas verticales */}
           <div className="tab-vertical">
-            <button
+          <button
               className={vistaActual === "acreditacion" ? "tab-btn activo" : "tab-btn"}
               onClick={() => setVistaActual("acreditacion")}
-            >
-              Acreditación Pastoral
+           >
+            Acreditación Pastoral
             </button>
             <button
               className={vistaActual === "hospedadores" ? "tab-btn activo" : "tab-btn"}
-              onClick={() => setVistaActual("hospedadores")}
-            >
+             onClick={() => setVistaActual("hospedadores")}
+        >
               Hospedadores
             </button>
             <button
               className={vistaActual === "servidumbre" ? "tab-btn activo" : "tab-btn"}
-              onClick={() => setVistaActual("servidumbre")}
-            >
-              Acreditación Servidumbre
-            </button>
-          </div>
+             onClick={() => setVistaActual("servidumbre")}
+           >
+           Acreditación Servidumbre
+           </button>
+       </div>
 
           {/* Contenedor de formularios */}
           <div className="form-content">
