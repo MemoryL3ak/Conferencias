@@ -4,8 +4,7 @@ import Select from "react-select";
 
 const CLIENT_ID =
   "100877140149-62dkjnovin2gmlhppj5hqfupamu29r2a.apps.googleusercontent.com";
-const SHEET_ID =
-  "1dJLyUn5ZhOCjCmxu8Ev0wocUaZaMcpKr4VMBlQlKQ8g";
+const SHEET_ID = "1dJLyUn5ZhOCjCmxu8Ev0wocUaZaMcpKr4VMBlQlKQ8g";
 
 export default function AcreditacionForm() {
   const [correoUsuario, setCorreoUsuario] = useState("");
@@ -183,7 +182,7 @@ export default function AcreditacionForm() {
   return (
     <div className="acreditacion-section">
       <img
-        src="https://i.ibb.co/Y49Gn8wW/logo-CEIP-2025-07.png" 
+        src="https://i.ibb.co/Y49Gn8wW/logo-CEIP-2025-07.png"
         alt="Logo"
         className="form-img"
       />
@@ -277,31 +276,30 @@ export default function AcreditacionForm() {
                 src={fotoUrl}
                 alt={`Foto de ${seleccionado.label}`}
                 style={{
-                  width: '250px',
-                  height: '250px',
-                  borderRadius: '50%',
-                  objectFit: 'cover',
-                  border: '2px solid #03304b',
-                  marginBottom: '1rem'
+                  width: "250px",
+                  height: "250px",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: "2px solid #03304b",
+                  marginBottom: "1rem"
                 }}
               />
             )}
             {/* Campos */}
             {[
-              { label: 'Nombre', value: datos[0] },
-              { label: 'País', value: datos[1] },
-              { label: 'Iglesia', value: datos[2] },
-              { label: 'Zona', value: datos[3] },
-              { label: 'Grado', value: datos[4] },
-              { label: 'Celular', value: datos[5] },
-               { label: 'Tipo de Movilización', value: datos[6] }
+              { label: "Nombre", value: datos[0] },
+              { label: "País", value: datos[1] },
+              { label: "Iglesia", value: datos[2] },
+              { label: "Zona", value: datos[3] },
+              { label: "Grado", value: datos[4] },
+              { label: "Celular", value: datos[5] },
+              { label: "Tipo de Movilización", value: datos[6] }
             ].map((c, i) => (
               <div className="form-group" key={i}>
                 <label className="form-label">{c.label}</label>
-                <input.gitignore
-
+                <input
                   className="form-input read-only"
-                  value={c.value || ''}
+                  value={c.value || ""}
                   readOnly
                 />
               </div>
@@ -314,7 +312,7 @@ export default function AcreditacionForm() {
               <label className="form-label">Tipo de Movilización</label>
               <input
                 className="form-input read-only"
-                value={datos[6] || ''}
+                value={datos[6] || ""}
                 readOnly
               />
             </div>
@@ -322,16 +320,16 @@ export default function AcreditacionForm() {
               <label className="form-label">Patente</label>
               <input
                 className="form-input read-only"
-                value={datos[7] || ''}
+                value={datos[7] || ""}
                 readOnly
               />
             </div>
-            {['Nombre Hospedador','Dirección Hospedador','Iglesia Hospedador','Teléfono Hospedador'].map((l,i)=>(
+            {["Nombre Hospedador", "Dirección Hospedador", "Iglesia Hospedador", "Teléfono Hospedador"].map((l, i) => (
               <div className="form-group" key={i}>
                 <label className="form-label">{l}</label>
                 <input
                   className="form-input read-only"
-                  value={datos[[9,11,12,10][i]]||''}
+                  value={datos[[9, 11, 12, 10][i]] || ""}
                   readOnly
                 />
               </div>
@@ -341,7 +339,14 @@ export default function AcreditacionForm() {
               <select
                 className="form-select"
                 value={campos.acreditado}
-                onChange={e=>{ if(!token){ setMostrarAvisoLogin(true); setTimeout(()=>setMostrarAvisoLogin(false),3000); return;} handleAcreditadoChange(e.target.value); }}
+                onChange={e => {
+                  if (!token) {
+                    setMostrarAvisoLogin(true);
+                    setTimeout(() => setMostrarAvisoLogin(false), 3000);
+                    return;
+                  }
+                  handleAcreditadoChange(e.target.value);
+                }}
               >
                 <option value="Si">Si</option>
                 <option value="No">No</option>
@@ -352,7 +357,14 @@ export default function AcreditacionForm() {
               <select
                 className="form-select"
                 value={campos.credencial}
-                onChange={e=>{ if(!token){ setMostrarAvisoLogin(true); setTimeout(()=>setMostrarAvisoLogin(false),3000); return;} setCampos({...campos,credencial:e.target.value}); }}
+                onChange={e => {
+                  if (!token) {
+                    setMostrarAvisoLogin(true);
+                    setTimeout(() => setMostrarAvisoLogin(false), 3000);
+                    return;
+                  }
+                  setCampos({ ...campos, credencial: e.target.value });
+                }}
               >
                 <option value="Si">Si</option>
                 <option value="No">No</option>
@@ -362,7 +374,7 @@ export default function AcreditacionForm() {
               <label className="form-label">Fecha y Hora de Llegada</label>
               <input
                 className="form-input read-only"
-                value={campos.llegada||''}
+                value={campos.llegada || ""}
                 readOnly
               />
             </div>
@@ -370,8 +382,15 @@ export default function AcreditacionForm() {
               <label className="form-label">Observaciones</label>
               <input
                 className="form-input"
-                value={campos.observaciones||''}
-                onChange={e=>{ if(!token){ setMostrarAvisoLogin(true); setTimeout(()=>setMostrarAvisoLogin(false),3000); return;} setCampos({...campos,observaciones:e.target.value}); }}
+                value={campos.observaciones || ""}
+                onChange={e => {
+                  if (!token) {
+                    setMostrarAvisoLogin(true);
+                    setTimeout(() => setMostrarAvisoLogin(false), 3000);
+                    return;
+                  }
+                  setCampos({ ...campos, observaciones: e.target.value });
+                }}
               />
             </div>
             <div className="form-group">
@@ -380,7 +399,7 @@ export default function AcreditacionForm() {
                 onClick={guardarCambios}
                 disabled={guardando}
               >
-                {guardando ? 'Guardando...' : 'Guardar Cambios'}
+                {guardando ? "Guardando..." : "Guardar Cambios"}
               </button>
             </div>
           </div>
@@ -393,9 +412,7 @@ export default function AcreditacionForm() {
         </div>
       )}
       {mensajeExito && (
-        <div className="mensaje-exito">
-          ✅ Datos actualizados correctamente
-        </div>
+        <div className="mensaje-exito">✅ Datos actualizados correctamente</div>
       )}
     </div>
   );
