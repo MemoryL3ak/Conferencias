@@ -1,0 +1,15 @@
+{
+  "rewrites": [
+    {
+      "source": "/acreditacion/:path*",
+      "destination": "/:path*"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/acreditacion",
+      "destination": "/acreditacion/",
+      "permanent": true
+    }
+  ]
+}
