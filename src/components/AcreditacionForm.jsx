@@ -183,7 +183,7 @@ export default function AcreditacionForm() {
   return (
     <div className="acreditacion-section">
       <img
-        src="https://i.ibb.co/TqRmH5F8/logo-CEIP-2025-08.png"
+        src="https://i.ibb.co/Y49Gn8wW/logo-CEIP-2025-07.png" 
         alt="Logo"
         className="form-img"
       />
