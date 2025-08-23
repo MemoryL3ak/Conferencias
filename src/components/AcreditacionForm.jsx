@@ -308,14 +308,7 @@ export default function AcreditacionForm() {
 
           {/* Columna derecha */}
           <div className="form-col">
-            <div className="form-group">
-              <label className="form-label">Tipo de Movilización</label>
-              <input
-                className="form-input read-only"
-                value={datos[6] || ""}
-                readOnly
-              />
-            </div>
+            
             <div className="form-group">
               <label className="form-label">Patente</label>
               <input
