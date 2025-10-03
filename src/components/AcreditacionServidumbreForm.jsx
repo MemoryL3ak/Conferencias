@@ -95,7 +95,7 @@ export default function AcreditacionServidumbreForm() {
 
   // Cabeceras (sin “¿Se entrega Credencial?”)
   const headers = [
-    "Nombre","Sección","Iglesia","N° Contacto",
+    "Nombre","Sección","Iglesia","Mesa/Turno",
     "¿Se Acredita?","Fecha Acreditación","Observaciones"
   ];
 
