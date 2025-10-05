@@ -13,7 +13,6 @@ export default function AcreditacionServidumbreForm() {
   const [filtroNombre, setFiltroNombre] = useState(null);
   const [filtroSeccion, setFiltroSeccion] = useState(null);
   const [filtroIglesia, setFiltroIglesia] = useState(null);
-  // ── NUEVO: estado para mostrar aviso de inicio de sesión
   const [mostrarAvisoLogin, setMostrarAvisoLogin] = useState(false);
 
   const tokenClientRef = useRef(null);
@@ -80,19 +79,18 @@ export default function AcreditacionServidumbreForm() {
       .then(d => {
         const rows = d.values || [];
         setFilas(rows);
-        // Layout actual (0-based):
+        // Layout actual (0-based) tras eliminar G (entrega credencial):
         // 0 Nombre, 2 Sección, 3 Iglesia, 4 Mesa/Turno
-        // 5 ¿Se Acredita? (F) | 6 ¿Se entrega credencial? (G) | 7 Patente (H)
-        // 8 Observaciones (I) | 9 Fecha (J, OCULTA) | 10 Correo acreditador (K)
+        // 5 ¿Se Acredita? (F) | 6 Patente (G) | 7 Observaciones (H)
+        // 8 Fecha (I, OCULTA) | 9 Correo acreditador (J)
         const initial = {};
         rows.forEach((row, i) => {
           initial[i] = {
-            acredita:          row[5]  || "No",
-            entregaCredencial: row[6]  || "No",
-            patente:           row[7]  || "",
-            observaciones:     row[8]  || "",
-            fecha:             row[9]  || "",
-            correoAcreditador: row[10] || ""
+            acredita:          row[5] || "No",
+            patente:           row[6] || "",
+            observaciones:     row[7] || "",
+            fecha:             row[8] || "",
+            correoAcreditador: row[9] || ""
           };
         });
         setEditedRows(initial);
@@ -102,7 +100,7 @@ export default function AcreditacionServidumbreForm() {
   // Cabeceras (sin mostrar la Fecha/Hora oculta)
   const headers = [
     "Nombre","Sección","Iglesia","Mesa/Turno",
-    "¿Se Acredita?","¿Se entrega credencial?","Patente","Observaciones"
+    "¿Se Acredita?","Patente","Observaciones"
   ];
 
   // Aplica filtros
@@ -191,14 +189,15 @@ export default function AcreditacionServidumbreForm() {
           </thead>
           <tbody>
             {filasFiltradas.map(({ row, idx }) => {
-              const { acredita, entregaCredencial, patente, fecha, observaciones } = editedRows[idx] || {};
+              const { acredita, patente, fecha, observaciones } = editedRows[idx] || {};
               const filaNum = idx + 2;
               return (
                 <tr key={idx}>
                   <td>{row[0]||""}</td>
                   <td>{row[2]||""}</td>
                   <td>{row[3]||""}</td>
-  <td style={{ textAlign: "center" }}>{row[4]||""}</td>
+                  {/* Mesa/Turno centrado */}
+                  <td style={{ textAlign: "center" }}>{row[4]||""}</td>
 
                   {/* ¿Se Acredita? (F) */}
                   <td>
@@ -206,7 +205,6 @@ export default function AcreditacionServidumbreForm() {
                       className="form-select"
                       value={acredita}
                       onChange={e => {
-                        // ── Bloqueo y aviso si no hay sesión
                         if (!token) {
                           setMostrarAvisoLogin(true);
                           setTimeout(() => setMostrarAvisoLogin(false), 3000);
@@ -224,10 +222,10 @@ export default function AcreditacionServidumbreForm() {
                         }));
                         // F: ¿Se Acredita?
                         updateSheet(`F${filaNum}:F${filaNum}`, val);
-                        // J: Fecha/Hora (OCULTA ahora en columna 10)
-                        updateSheet(`J${filaNum}:J${filaNum}`, newFecha);
-                        // K: Correo acreditador (guarda al poner "Si", limpia al poner "No")
-                        updateSheet(`K${filaNum}:K${filaNum}`, val === "Si" ? correoUsuario : "");
+                        // I: Fecha/Hora (OCULTA ahora en columna 9)
+                        updateSheet(`I${filaNum}:I${filaNum}`, newFecha);
+                        // J: Correo acreditador (guarda con "Si", limpia con "No")
+                        updateSheet(`J${filaNum}:J${filaNum}`, val === "Si" ? correoUsuario : "");
                       }}
                     >
                       <option value="Si">Si</option>
@@ -235,35 +233,7 @@ export default function AcreditacionServidumbreForm() {
                     </select>
                   </td>
 
-                  {/* ¿Se entrega credencial? (G) */}
-                  <td>
-                    <select
-                      className="form-select"
-                      value={entregaCredencial}
-                      onChange={e => {
-                        if (!token) {
-                          setMostrarAvisoLogin(true);
-                          setTimeout(() => setMostrarAvisoLogin(false), 3000);
-                          return;
-                        }
-                        const val = e.target.value;
-                        setEditedRows(prev => ({
-                          ...prev,
-                          [idx]: { 
-                            ...prev[idx],
-                            entregaCredencial: val
-                          }
-                        }));
-                        // G: ¿Se entrega credencial?
-                        updateSheet(`G${filaNum}:G${filaNum}`, val);
-                      }}
-                    >
-                      <option value="Si">Si</option>
-                      <option value="No">No</option>
-                    </select>
-                  </td>
-
-                  {/* Patente (H) */}
+                  {/* Patente (G) */}
                   <td>
                     <input
                       className="form-input"
@@ -283,13 +253,13 @@ export default function AcreditacionServidumbreForm() {
                             patente: val
                           }
                         }));
-                        // H: Patente
-                        updateSheet(`H${filaNum}:H${filaNum}`, val);
+                        // G: Patente
+                        updateSheet(`G${filaNum}:G${filaNum}`, val);
                       }}
                     />
                   </td>
 
-                  {/* Observaciones (I) */}
+                  {/* Observaciones (H) */}
                   <td>
                     <input
                       className="form-input"
@@ -308,8 +278,8 @@ export default function AcreditacionServidumbreForm() {
                             observaciones: val 
                           }
                         }));
-                        // I: Observaciones (columna 9)
-                        updateSheet(`I${filaNum}:I${filaNum}`, val);
+                        // H: Observaciones (columna 8)
+                        updateSheet(`H${filaNum}:H${filaNum}`, val);
                       }}
                     />
                   </td>
