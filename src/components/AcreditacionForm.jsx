@@ -148,6 +148,17 @@ export default function AcreditacionForm() {
       });
   }
 
+  // Bloquea y fuerza "No" si no vienen con esposa/acompañante
+  useEffect(() => {
+    setCampos(prev => {
+      const next = { ...prev };
+      if (prev.vieneConEsposa !== "Si") next.acreditadoEsposa = "No";
+      if (prev.vieneConAcompanante !== "Si") next.acreditadoAcompanante = "No";
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [campos.vieneConEsposa, campos.vieneConAcompanante]);
+
   function guardarCambios() {
     if (!token) {
       setMostrarAvisoLogin(true);
@@ -436,6 +447,8 @@ export default function AcreditacionForm() {
                 className="form-select"
                 value={campos.acreditadoEsposa}
                 onChange={e => setCampos({ ...campos, acreditadoEsposa: e.target.value })}
+                disabled={campos.vieneConEsposa !== "Si"}
+                title={campos.vieneConEsposa !== "Si" ? "No viene con esposa" : ""}
               >
                 <option value="Si">Si</option>
                 <option value="No">No</option>
@@ -448,6 +461,8 @@ export default function AcreditacionForm() {
                 className="form-select"
                 value={campos.acreditadoAcompanante}
                 onChange={e => setCampos({ ...campos, acreditadoAcompanante: e.target.value })}
+                disabled={campos.vieneConAcompanante !== "Si"}
+                title={campos.vieneConAcompanante !== "Si" ? "No viene con acompañante" : ""}
               >
                 <option value="Si">Si</option>
                 <option value="No">No</option>
@@ -468,15 +483,29 @@ export default function AcreditacionForm() {
               />
             </div>
 
-            <div className="form-group">
-              <button
-                className="form-btn guardar-btn"
-                onClick={guardarCambios}
-                disabled={guardando}
-              >
-                {guardando ? "Guardando..." : "Guardar Cambios"}
-              </button>
-            </div>
+{/* Botón: 100% ancho, +alto y subido 8px */}
+<div className="form-group" style={{ marginTop: "16px" }}>
+  <button
+    className="form-btn guardar-btn"
+    style={{
+      width: "100%",
+      height: "52px",          // antes 44px (+8)
+      display: "inline-flex",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 8,
+      transform: "translateY(-8px)" // lo sube 8px → crece hacia arriba
+    }}
+    onClick={guardarCambios}
+    disabled={guardando}
+  >
+    {guardando ? "Guardando..." : "Guardar Cambios"}
+  </button>
+</div>
+
+
+
+
           </div>
         </div>
       )}

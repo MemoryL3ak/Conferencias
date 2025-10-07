@@ -516,3 +516,8 @@ body {
   border-radius: 8px;
   overflow: hidden;
 }
+
+.form-btn.guardar-btn {
+  font-size: 18px;   /* ajusta a gusto: 16–20px */
+  font-weight: 520;  /* opcional */
+}
