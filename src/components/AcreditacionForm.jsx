@@ -12,13 +12,26 @@ export default function AcreditacionForm() {
   const [nombres, setNombres] = useState([]);
   const [seleccionado, setSeleccionado] = useState(null);
   const [datos, setDatos] = useState([]);
+
+  // Estado de campos (según nuevas columnas A:X)
   const [campos, setCampos] = useState({
-    acreditado: "No",
-    credencial: "No",
+    // Logística H:M (7..12)
+    patente: "",
+    vieneConEsposa: "No",
+    nombreEsposa: "",
+    vieneConAcompanante: "No",
+    nombreAcompanante: "",
+    mesa: "",
+
+    // Acreditación R:W (17..22)
+    acreditadoPastor: "No",
+    acreditadoEsposa: "No",
+    acreditadoAcompanante: "No",
     llegada: "",
-    observaciones: ""
+    observaciones: "",
   });
-  const [fotoUrl, setFotoUrl] = useState("");
+
+  const [fotoUrl, setFotoUrl] = useState(""); // X (23) URL Foto
   const [mostrarAvisoLogin, setMostrarAvisoLogin] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [guardando, setGuardando] = useState(false);
@@ -56,50 +69,76 @@ export default function AcreditacionForm() {
       .catch(() => {});
   }
 
+  function fetchConAuth(url, opts = {}) {
+    return fetch(url, {
+      ...opts,
+      headers: { ...(opts.headers || {}), Authorization: `Bearer ${token}` }
+    }).then(res => {
+      if (res.status === 401) {
+        cerrarSesion();
+        throw new Error("Sesión expirada");
+      }
+      return res;
+    });
+  }
+
   // Load names & churches
   useEffect(() => {
     if (!token) return;
     setCargando(true);
     fetchConAuth(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!A2:Q`
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!A2:X`
     )
       .then(r => r.json())
       .then(data => {
         const vals = data.values || [];
-        setNombres(vals.map(f => f[0]));
-        setIglesias([...new Set(vals.map(f => f[2]))]);
+        setNombres(vals.map(f => f[0])); // A: Nombre Completo
+        setIglesias([...new Set(vals.map(f => f[2]))]); // C: Iglesia
       })
       .finally(() => setCargando(false));
   }, [token]);
 
-  // Load data + photo
+  // Load data for selected name
   function cargarDatos(nombre) {
     fetchConAuth(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!A2:S`
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!A2:X`
     )
       .then(r => r.json())
       .then(data => {
         const fila = (data.values || []).find(f => f[0] === nombre);
         if (!fila) return;
         setDatos(fila);
+
+        // Mapear campos según índice 0-based
         setCampos({
-          acreditado: fila[13] || "No",
-          credencial: fila[14] || "No",
-          llegada: fila[15] || "",
-          observaciones: fila[16] || ""
+          // logística (H..M => 7..12)
+          patente: fila[7] || "",
+          vieneConEsposa: fila[8] || "No",
+          nombreEsposa: fila[9] || "",
+          vieneConAcompanante: fila[10] || "No",
+          nombreAcompanante: fila[11] || "",
+          mesa: fila[12] || "",
+
+          // acreditación (R..W => 17..22)
+          acreditadoPastor: fila[17] || "No",
+          acreditadoEsposa: fila[18] || "No",
+          acreditadoAcompanante: fila[19] || "No",
+          llegada: fila[20] || "",
+          observaciones: fila[21] || ""
         });
 
-        const rawUrl = fila[18] || "";
+        // Foto (X => índice 23)
+        const rawUrl = fila[23] || "";
         let fileId = null;
-        const m = rawUrl.match(/\/d\/([^/]+)/);
-        if (m) fileId = m[1];
+        const match = rawUrl.match(/\/d\/([^/]+)/);
+        if (match) fileId = match[1];
         else {
           try {
             fileId = new URL(rawUrl).searchParams.get("id");
           } catch {}
         }
         const directUrl = fileId
-          ? `https://drive.google.com/thumbnail?authuser=0&sz=w200&id=${fileId}`
+          ? `https://drive.google.com/thumbnail?authuser=0&sz=w250&id=${fileId}`
           : rawUrl;
         setFotoUrl(directUrl);
       })
@@ -117,6 +156,8 @@ export default function AcreditacionForm() {
     }
     if (!seleccionado?.value) return;
     setGuardando(true);
+
+    // localizar fila por nombre
     fetchConAuth(
       `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!A2:A`
     )
@@ -125,36 +166,64 @@ export default function AcreditacionForm() {
         const idx = (data.values || []).findIndex(f => f[0] === seleccionado.value);
         if (idx < 0) return;
         const row = idx + 2;
-        return fetchConAuth(
-          `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!N${row}:R${row}?valueInputOption=RAW`,
+
+        // Timestamp llegada si se acredita al pastor
+        const llegada =
+          campos.acreditadoPastor === "Si"
+            ? (campos.llegada || new Date().toLocaleString())
+            : (campos.acreditadoPastor === "No" ? "" : (campos.llegada || ""));
+
+        // 1) PUT logística H:M (7..12)
+        const putLogistica = fetchConAuth(
+          `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!H${row}:M${row}?valueInputOption=RAW`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               values: [[
-                campos.acreditado,
-                campos.credencial,
-                campos.llegada,
-                campos.observaciones,
-                campos.acreditado === "Si" ? correoUsuario : ""
+                campos.patente || "",
+                campos.vieneConEsposa || "No",
+                campos.nombreEsposa || "",
+                campos.vieneConAcompanante || "No",
+                campos.nombreAcompanante || "",
+                campos.mesa || ""
               ]]
             })
           }
         );
+
+        // 2) PUT acreditación R:W (17..22) — incluye acreditador (W)
+        const acreditador = (
+          campos.acreditadoPastor === "Si" ||
+          campos.acreditadoEsposa === "Si" ||
+          campos.acreditadoAcompanante === "Si"
+        ) ? correoUsuario : "";
+
+        const putAcreditacion = fetchConAuth(
+          `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!R${row}:W${row}?valueInputOption=RAW`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              values: [[
+                campos.acreditadoPastor || "No",
+                campos.acreditadoEsposa || "No",
+                campos.acreditadoAcompanante || "No",
+                llegada || "",
+                campos.observaciones || "",
+                acreditador
+              ]]
+            })
+          }
+        );
+
+        return Promise.all([putLogistica, putAcreditacion]);
       })
       .then(() => {
         setMensajeExito(true);
         setTimeout(() => setMensajeExito(false), 3000);
       })
       .finally(() => setGuardando(false));
-  }
-
-  function handleAcreditadoChange(v) {
-    setCampos({
-      ...campos,
-      acreditado: v,
-      llegada: v === "Si" ? new Date().toLocaleString() : ""
-    });
   }
 
   function cerrarSesion() {
@@ -164,19 +233,6 @@ export default function AcreditacionForm() {
   }
   function iniciarSesion() {
     tokenClientRef.current.requestAccessToken();
-  }
-
-  function fetchConAuth(url, opts = {}) {
-    return fetch(url, {
-      ...opts,
-      headers: { ...(opts.headers || {}), Authorization: `Bearer ${token}` }
-    }).then(res => {
-      if (res.status === 401) {
-        cerrarSesion();
-        throw new Error("Sesión expirada");
-      }
-      return res;
-    });
   }
 
   return (
@@ -245,11 +301,11 @@ export default function AcreditacionForm() {
               setIglesiaSeleccionada(opt);
               if (opt?.value) {
                 fetchConAuth(
-                  `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!A2:Q`
+                  `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Acreditación!A2:X`
                 )
                   .then(r => r.json())
                   .then(data => {
-                    const f = data.values?.find(x => x[2] === opt.value);
+                    const f = data.values?.find(x => x[2] === opt.value); // C: Iglesia
                     if (f) {
                       setSeleccionado({ value: f[0], label: f[0] });
                       cargarDatos(f[0]);
@@ -285,9 +341,9 @@ export default function AcreditacionForm() {
                 }}
               />
             )}
-            {/* Campos */}
+            {/* Campos base A..G (0..6) */}
             {[
-              { label: "Nombre", value: datos[0] },
+              { label: "Nombre Completo", value: datos[0] },
               { label: "País", value: datos[1] },
               { label: "Iglesia", value: datos[2] },
               { label: "Zona", value: datos[3] },
@@ -304,88 +360,114 @@ export default function AcreditacionForm() {
                 />
               </div>
             ))}
+            {/* Logística adicional (solo lectura) */}
+            <div className="form-group">
+              <label className="form-label">Patente</label>
+              <input className="form-input read-only" value={campos.patente || ""} readOnly />
+            </div>
+            <div className="form-group">
+              <label className="form-label">¿Viene con Esposa?</label>
+              <input className="form-input read-only" value={campos.vieneConEsposa || "No"} readOnly />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Nombre Esposa</label>
+              <input className="form-input read-only" value={campos.nombreEsposa || ""} readOnly />
+            </div>
           </div>
 
           {/* Columna derecha */}
           <div className="form-col">
-            
+            {/* Acompañante (solo lectura) */}
             <div className="form-group">
-              <label className="form-label">Patente</label>
-              <input
-                className="form-input read-only"
-                value={datos[7] || ""}
-                readOnly
-              />
+              <label className="form-label">¿Viene con Acompañante?</label>
+              <input className="form-input read-only" value={campos.vieneConAcompanante || "No"} readOnly />
             </div>
-            {["Nombre Hospedador", "Dirección Hospedador", "Iglesia Hospedador", "Teléfono Hospedador"].map((l, i) => (
+            <div className="form-group">
+              <label className="form-label">Nombre Acompañante</label>
+              <input className="form-input read-only" value={campos.nombreAcompanante || ""} readOnly />
+            </div>
+
+            {/* MESA (solo lectura) */}
+            <div className="form-group">
+              <label className="form-label">MESA</label>
+              <input className="form-input read-only" value={campos.mesa || ""} readOnly />
+            </div>
+
+            {/* Hospedaje N..Q (13..16) read-only */}
+            {["Hospedador", "N°Contacto", "Dirección", "Iglesia Hospedador"].map((l, i) => (
               <div className="form-group" key={i}>
                 <label className="form-label">{l}</label>
                 <input
                   className="form-input read-only"
-                  value={datos[[9, 11, 12, 10][i]] || ""}
+                  value={datos[[13, 14, 15, 16][i]] || ""}
                   readOnly
                 />
               </div>
             ))}
+
+            {/* Acreditación */}
             <div className="form-group">
-              <label className="form-label">¿Se acredita Pastor?</label>
+              <label className="form-label">¿Se Acredita Pastor?</label>
               <select
                 className="form-select"
-                value={campos.acreditado}
+                value={campos.acreditadoPastor}
                 onChange={e => {
                   if (!token) {
                     setMostrarAvisoLogin(true);
                     setTimeout(() => setMostrarAvisoLogin(false), 3000);
                     return;
                   }
-                  handleAcreditadoChange(e.target.value);
+                  const v = e.target.value;
+                  setCampos({
+                    ...campos,
+                    acreditadoPastor: v,
+                    llegada: v === "Si" ? (campos.llegada || new Date().toLocaleString()) : ""
+                  });
                 }}
               >
                 <option value="Si">Si</option>
                 <option value="No">No</option>
               </select>
             </div>
+
             <div className="form-group">
-              <label className="form-label">¿Se entregó credencial?</label>
+              <label className="form-label">¿Se Acredita Esposa?</label>
               <select
                 className="form-select"
-                value={campos.credencial}
-                onChange={e => {
-                  if (!token) {
-                    setMostrarAvisoLogin(true);
-                    setTimeout(() => setMostrarAvisoLogin(false), 3000);
-                    return;
-                  }
-                  setCampos({ ...campos, credencial: e.target.value });
-                }}
+                value={campos.acreditadoEsposa}
+                onChange={e => setCampos({ ...campos, acreditadoEsposa: e.target.value })}
               >
                 <option value="Si">Si</option>
                 <option value="No">No</option>
               </select>
             </div>
+
             <div className="form-group">
-              <label className="form-label">Fecha y Hora de Llegada</label>
-              <input
-                className="form-input read-only"
-                value={campos.llegada || ""}
-                readOnly
-              />
+              <label className="form-label">¿Se Acredita Acompañante?</label>
+              <select
+                className="form-select"
+                value={campos.acreditadoAcompanante}
+                onChange={e => setCampos({ ...campos, acreditadoAcompanante: e.target.value })}
+              >
+                <option value="Si">Si</option>
+                <option value="No">No</option>
+              </select>
             </div>
+
             <div className="form-group">
-              <label className="form-label">Observaciones</label>
+              <label className="form-label">Fecha y Hora Acreditación</label>
+              <input className="form-input read-only" value={campos.llegada || ""} readOnly />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Observaciones y/o Modificaciones</label>
               <input
                 className="form-input"
                 value={campos.observaciones || ""}
-                onChange={e => {
-                  if (!token) {
-                    setMostrarAvisoLogin(true);
-                    setTimeout(() => setMostrarAvisoLogin(false), 3000);
-                    return;
-                  }
-                  setCampos({ ...campos, observaciones: e.target.value });
-                }}
+                onChange={e => setCampos({ ...campos, observaciones: e.target.value })}
               />
             </div>
+
             <div className="form-group">
               <button
                 className="form-btn guardar-btn"
